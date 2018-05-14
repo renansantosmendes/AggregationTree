@@ -20,7 +20,9 @@ import java.util.logging.Logger;
  * @author renansantos
  */
 public class AggregationTree {
+
     private List<List<Double>> listData;
+    private List<List<Integer>> rankData;
     private double[][] data;
     private String fileName;
     private int numberOfReducedObjectives = 0;
@@ -30,7 +32,7 @@ public class AggregationTree {
     private int numberOfRows;
     private int numberOfColumns;
     private CorrelationType conflictType;
-    
+
     public AggregationTree(double[][] data, int numberOfReducedObjectives, CorrelationType corr) {
         this.data = data;
         this.numberOfReducedObjectives = numberOfReducedObjectives;
@@ -41,7 +43,7 @@ public class AggregationTree {
 //        calculateSilimarity();
 //        calculateDissilimarity();
     }
-    
+
     public AggregationTree(double[][] data, int numberOfReducedObjectives) {
         this.data = data;
         this.numberOfReducedObjectives = numberOfReducedObjectives;
@@ -61,8 +63,8 @@ public class AggregationTree {
             ex.printStackTrace();
         }
     }
-    
-     public List<List<Double>> getListData() {
+
+    public List<List<Double>> getListData() {
         return listData;
     }
 
@@ -84,15 +86,14 @@ public class AggregationTree {
 
     public void printTransformationList() {
         this.transformationList.forEach(System.out::println);
-        //System.out.println(this.transformationList);
     }
 
     public AggregationTree setCorrelation(CorrelationType correlationType) {
         this.conflictType = correlationType;
         return this;
     }
-    
-    public void setTransformationList(List<List<Integer>>  list){
+
+    public void setTransformationList(List<List<Integer>> list) {
         this.transformationList = new ArrayList<>();
         this.transformationList = list;
     }
@@ -117,14 +118,32 @@ public class AggregationTree {
 
         return listData;
     }
-    
-    public void sortDataForEveryObjective(){
-        for(int i = 0; i < this.numberOfColumns; i++){
+
+    public void sortDataForEveryObjective() {
+        initializeRankData();
+        for (int i = 0; i < this.numberOfColumns; i++) {
             sortDataAccordingObjectiveNumber(i);
+            int counter = 1;
+            for (int j = 0; j < this.numberOfRows; j++) {
+                this.rankData.get(j).set(i, counter);
+                counter++;
+            }
         }
+        this.rankData.forEach(System.out::println);
     }
-    
-    public void sortDataAccordingObjectiveNumber(int number){
+
+    public void sortDataAccordingObjectiveNumber(int number) {
         this.listData.sort(Comparator.comparingDouble(d -> d.get(number)));
+    }
+
+    private void initializeRankData() {
+        this.rankData = new ArrayList<>();
+        for (int i = 0; i < this.numberOfRows; i++) {
+            List<Integer> lineData = new ArrayList<>();
+            for (int j = 0; j < this.numberOfColumns; j++) {
+                lineData.add(0);
+            }
+            this.rankData.add(lineData);
+        }
     }
 }

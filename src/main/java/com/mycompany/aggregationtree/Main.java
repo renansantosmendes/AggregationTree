@@ -21,6 +21,7 @@ public class Main {
         at.getListData().forEach(System.out::println);
         System.out.println("");
         at.sortDataForEveryObjective();
+        System.out.println("");
         at.getListData().forEach(System.out::println);
     }
 }
