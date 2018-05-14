@@ -18,10 +18,16 @@ public class Main {
 
         AggregationTree at;
         at = new AggregationTree(path + fileName, 2);
-        at.getListData().forEach(System.out::println);
+        //at.sortObjectDataAccordingObjectiveNumber(0);
+        at.printDataObjects();
+        
+        at.sortObjectDataForEveryObjective();
         System.out.println("");
-        at.sortDataForEveryObjective();
-        System.out.println("");
-        at.getListData().forEach(System.out::println);
+        at.printDataObjects();
+//        at.getListData().forEach(System.out::println);
+//        System.out.println("");
+//        at.sortDataForEveryObjective();
+//        System.out.println("");
+//        at.getListData().forEach(System.out::println);
     }
 }

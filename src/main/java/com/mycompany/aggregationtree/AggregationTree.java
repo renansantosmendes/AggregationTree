@@ -12,9 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author renansantos
@@ -23,6 +20,7 @@ public class AggregationTree {
 
     private List<List<Double>> listData;
     private List<List<Integer>> rankData;
+    private List<List<Data>> dataObjectList;
     private double[][] data;
     private String fileName;
     private int numberOfReducedObjectives = 0;
@@ -32,6 +30,37 @@ public class AggregationTree {
     private int numberOfRows;
     private int numberOfColumns;
     private CorrelationType conflictType;
+
+    private class Data {
+
+        private double data;
+        private int rank;
+
+        public Data(double data, int rank) {
+            this.data = data;
+            this.rank = rank;
+        }
+
+        public double getData() {
+            return data;
+        }
+
+        public double getRank() {
+            return rank;
+        }
+
+        public void setData(double data) {
+            this.data = data;
+        }
+
+        public void setRank(int rank) {
+            this.rank = rank;
+        }
+        
+        public String toString(){
+            return Double.toString(this.data)+":"+Integer.toString(this.rank);
+        }
+    }
 
     public AggregationTree(double[][] data, int numberOfReducedObjectives, CorrelationType corr) {
         this.data = data;
@@ -59,6 +88,7 @@ public class AggregationTree {
         this.numberOfReducedObjectives = numberOfReducedObjectives;
         try {
             this.listData = readData();
+            this.dataObjectList = createDataObjects();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -119,6 +149,19 @@ public class AggregationTree {
         return listData;
     }
 
+    private List<List<Data>> createDataObjects() {
+        List<List<Data>> list = new ArrayList<>();
+        for (int i = 0; i < this.numberOfRows; i++) {
+            List<Data> line = new ArrayList<>();
+            for (int j = 0; j < this.numberOfColumns; j++) {
+                Data data = new Data(this.listData.get(i).get(j), 0);
+                line.add(data);
+            }
+            list.add(line);
+        }
+        return list;
+    }
+
     public void sortDataForEveryObjective() {
         initializeRankData();
         for (int i = 0; i < this.numberOfColumns; i++) {
@@ -132,10 +175,31 @@ public class AggregationTree {
         this.rankData.forEach(System.out::println);
     }
 
+    public void sortObjectDataForEveryObjective() {
+        initializeRankData();
+        for (int i = 0; i < this.numberOfColumns; i++) {
+            sortObjectDataAccordingObjectiveNumber(i);
+            int counter = 1;
+            for (int j = 0; j < this.numberOfRows; j++) {
+                this.dataObjectList.get(j).get(i).setRank(counter);
+                counter++;
+            }
+        }
+        this.rankData.forEach(System.out::println);
+    }
+    
     public void sortDataAccordingObjectiveNumber(int number) {
         this.listData.sort(Comparator.comparingDouble(d -> d.get(number)));
     }
+    
+    public void sortObjectDataAccordingObjectiveNumber(int number) {
+        this.dataObjectList.sort(Comparator.comparingDouble(d -> d.get(number).getData()));
+    }
 
+    public void printDataObjects(){
+        this.dataObjectList.forEach(d -> System.out.println(d));
+    }
+    
     private void initializeRankData() {
         this.rankData = new ArrayList<>();
         for (int i = 0; i < this.numberOfRows; i++) {
