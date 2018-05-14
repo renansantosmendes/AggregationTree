@@ -10,7 +10,17 @@ package com.mycompany.aggregationtree;
  * @author renansantos
  */
 public class Main {
+
     public static void main(String[] args) {
-        System.out.println("Hello");
+
+        String path = "/home/renansantos/Área de Trabalho/Dados Experimentos/OffCLMOEAD_R3/r050n12tw10/";
+        String fileName = "OffCLMOEAD_R3_CombinedPareto_Objectives.csv";
+
+        AggregationTree at;
+        at = new AggregationTree(path + fileName, 2);
+        at.getListData().forEach(System.out::println);
+        System.out.println("");
+        at.sortDataForEveryObjective();
+        at.getListData().forEach(System.out::println);
     }
 }

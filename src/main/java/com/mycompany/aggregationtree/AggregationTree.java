@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -115,5 +116,15 @@ public class AggregationTree {
         br.close();
 
         return listData;
+    }
+    
+    public void sortDataForEveryObjective(){
+        for(int i = 0; i < this.numberOfColumns; i++){
+            sortDataAccordingObjectiveNumber(i);
+        }
+    }
+    
+    public void sortDataAccordingObjectiveNumber(int number){
+        this.listData.sort(Comparator.comparingDouble(d -> d.get(number)));
     }
 }
