@@ -19,16 +19,7 @@ public class Main {
 
         AggregationTree at;
         at = new AggregationTree(path + fileName, 2);
-        //at.sortObjectDataAccordingObjectiveNumber(0);
-        //at.printDataObjects();
-
-        at.sortObjectDataForEveryObjective();
-        System.out.println("");
-//        at.printNormalizedData();
-        
-        at.calculateClonflictMatrix();
-        at.printConflictMatrix();
-        //at.printDataObjects();
+        at.run();
 
     }
 }

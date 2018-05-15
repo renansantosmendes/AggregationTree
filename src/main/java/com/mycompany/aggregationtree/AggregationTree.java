@@ -5,6 +5,7 @@
  */
 package com.mycompany.aggregationtree;
 
+import Jama.Matrix;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -67,15 +68,12 @@ public class AggregationTree {
         }
     }
 
-    public AggregationTree(double[][] data, int numberOfReducedObjectives, ConflictType corr) {
+    public AggregationTree(double[][] data, int numberOfReducedObjectives, ConflictType conflictType) {
         this.data = data;
         this.numberOfReducedObjectives = numberOfReducedObjectives;
         this.numberOfRows = this.data.length;
         this.numberOfColumns = this.data[0].length;
-        this.conflictType = corr;
-        //createMatrix();
-//        calculateSilimarity();
-//        calculateDissilimarity();
+        this.conflictType = conflictType;
     }
 
     public AggregationTree(double[][] data, int numberOfReducedObjectives) {
@@ -83,9 +81,6 @@ public class AggregationTree {
         this.numberOfReducedObjectives = numberOfReducedObjectives;
         this.numberOfRows = this.data.length;
         this.numberOfColumns = this.data[0].length;
-        //createMatrix();
-//        calculateSilimarity();
-//        calculateDissilimarity();
     }
 
     public AggregationTree(String fileName, int numberOfReducedObjectives) {
@@ -227,7 +222,6 @@ public class AggregationTree {
     }
 
     public void printNormalizedData() {
-//        this.normalizedData = new double[this.numberOfRows][this.numberOfColumns];
         for (int i = 0; i < this.numberOfRows; i++) {
             for (int j = 0; j < this.numberOfColumns; j++) {
                 System.out.print(this.normalizedData[i][j] + ",");
@@ -237,11 +231,26 @@ public class AggregationTree {
     }
 
     public void reduce() {
+        List<Integer> indexes = findMinConflict();
+        int column1 = indexes.get(0);
+        int column2 = indexes.get(1);
 
+        Matrix m = new Matrix(this.normalizedData);
+        Matrix reducedData;
+        int numberOfObjectives = this.numberOfColumns;
+
+        reducedData = new Matrix(m.getRowDimension(), m.getColumnDimension() - 1);
+        reducedData.setMatrix(0, m.getRowDimension() - 1, 0, column1 - 1, m.getMatrix(0, m.getRowDimension() - 1, 0, column1 - 1));
+        reducedData.setMatrix(0, m.getRowDimension() - 1, column1, column1, m.getMatrix(0, m.getRowDimension() - 1, column1, column1)
+                .plus(m.getMatrix(0, m.getRowDimension() - 1, column2, column2)));
+        reducedData.setMatrix(0, m.getRowDimension() - 1, column1 + 1, column2 - 1, m.getMatrix(0, m.getRowDimension() - 1, column1 + 1, column2 - 1));
+        reducedData.setMatrix(0, m.getRowDimension() - 1, column2, m.getColumnDimension() - 2, m.getMatrix(0, m.getRowDimension() - 1, column2 + 1, m.getColumnDimension() - 1));
     }
 
     public void calculateClonflictMatrix() {
-        this.conflictMatrix = new double[this.numberOfRows][this.numberOfColumns];
+        this.conflictMatrix = new double[this.numberOfColumns][this.numberOfColumns];
+        this.harmonyMatrix = new double[this.numberOfColumns][this.numberOfColumns];
+
         for (int i = 0; i < this.numberOfColumns; i++) {
             for (int j = i + 1; j < this.numberOfColumns; j++) {
                 double sum = 0;
@@ -251,15 +260,40 @@ public class AggregationTree {
                 this.conflictMatrix[i][j] = sum;
             }
         }
-        
+
         normalizeConflictMatrix();
+    }
+
+    public List<Integer> findMinConflict() {
+        List<Integer> positions = new ArrayList<>();
+        double minConflict = 1.0;
+        int column = 0;
+        int row = 0;
+        for (int i = 0; i < this.numberOfColumns; i++) {
+            for (int j = i + 1; j < this.numberOfColumns; j++) {
+                if (this.conflictMatrix[i][j] < minConflict && this.conflictMatrix[i][j] != 0) {
+                    minConflict = this.conflictMatrix[i][j];
+                    row = i;
+                    column = j;
+                }
+            }
+        }
+
+        if (column == 0 && row == 0) {
+            throw new RuntimeException("could not find the minimum conflict value ");
+        }
+
+        positions.add(row);
+        positions.add(column);
+        positions.sort(Comparator.naturalOrder());
+        return positions;
     }
 
     public void normalizeConflictMatrix() {
         calculateMaxConflict();
-        for (int i = 0; i < this.numberOfRows; i++) {
+        for (int i = 0; i < this.numberOfColumns; i++) {
             for (int j = i + 1; j < this.numberOfColumns; j++) {
-                this.conflictMatrix[i][j] = this.conflictMatrix[i][j] /this.maxConflict;
+                this.conflictMatrix[i][j] = this.conflictMatrix[i][j] / this.maxConflict;
             }
         }
     }
@@ -268,13 +302,13 @@ public class AggregationTree {
         double sum = 0;
         int n = this.numberOfRows;
         for (int i = 1; i <= n; i++) {
-            sum += Math.abs(2*i - n - 1);
+            sum += Math.abs(2 * i - n - 1);
         }
         this.maxConflict = sum;
     }
 
     public void printConflictMatrix() {
-        for (int i = 0; i < this.numberOfRows; i++) {
+        for (int i = 0; i < this.numberOfColumns; i++) {
             for (int j = 0; j < this.numberOfColumns; j++) {
                 System.out.print(this.conflictMatrix[i][j] + " ");
             }
@@ -306,9 +340,12 @@ public class AggregationTree {
     }
 
     public void run() {
-        normalizeData();
+        sortObjectDataForEveryObjective();
+        calculateClonflictMatrix();
         while (hasObjectiveToReduce()) {
-
+            reduce();
+            sortObjectDataForEveryObjective();
+            calculateClonflictMatrix();
         }
     }
 
