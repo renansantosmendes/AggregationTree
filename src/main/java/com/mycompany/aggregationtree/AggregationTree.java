@@ -75,6 +75,7 @@ public class AggregationTree {
         this.numberOfRows = this.data.length;
         this.numberOfColumns = this.data[0].length;
         this.conflictType = conflictType;
+        this.dataObjectList = createDataObjectsFromArray();
     }
 
     public AggregationTree(double[][] data, int numberOfReducedObjectives) {
@@ -82,6 +83,7 @@ public class AggregationTree {
         this.numberOfReducedObjectives = numberOfReducedObjectives;
         this.numberOfRows = this.data.length;
         this.numberOfColumns = this.data[0].length;
+        this.dataObjectList = createDataObjectsFromArray();
     }
 
     public AggregationTree(String fileName, int numberOfReducedObjectives) {
@@ -158,6 +160,20 @@ public class AggregationTree {
         }
         return list;
     }
+    
+    private List<List<Data>> createDataObjectsFromArray() {
+        List<List<Data>> list = new ArrayList<>();
+        for (int i = 0; i < this.numberOfRows; i++) {
+            List<Data> line = new ArrayList<>();
+            for (int j = 0; j < this.numberOfColumns; j++) {
+                Data data = new Data(this.data[i][j], 0);
+                line.add(data);
+            }
+            list.add(line);
+        }
+        return list;
+    }
+
 
     public void sortDataForEveryObjective() {
         initializeRankData();
