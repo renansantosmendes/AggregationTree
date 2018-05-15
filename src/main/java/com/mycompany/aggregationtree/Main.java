@@ -13,21 +13,19 @@ public class Main {
 
     public static void main(String[] args) {
 
-        String path = "/home/renansantos/Área de Trabalho/Dados Experimentos/OffCLMOEAD_R3/r050n12tw10/";
-        String fileName = "OffCLMOEAD_R3_CombinedPareto_Objectives.csv";
+        String path = "/home/renansantos/Área de Trabalho/Aggregation Tree/";
+//        String fileName = "OffCLMOEAD_R3_CombinedPareto_Objectives.csv";
+        String fileName = "ex.csv";
 
         AggregationTree at;
         at = new AggregationTree(path + fileName, 2);
         //at.sortObjectDataAccordingObjectiveNumber(0);
-        at.printDataObjects();
-        
+        //at.printDataObjects();
+
         at.sortObjectDataForEveryObjective();
         System.out.println("");
-        at.printDataObjects();
-//        at.getListData().forEach(System.out::println);
-//        System.out.println("");
-//        at.sortDataForEveryObjective();
-//        System.out.println("");
-//        at.getListData().forEach(System.out::println);
+//        at.printNormalizedData();
+        //at.printDataObjects();
+
     }
 }

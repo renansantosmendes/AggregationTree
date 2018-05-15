@@ -10,7 +10,7 @@ package com.mycompany.aggregationtree;
  * @author renansantos
  */
 public enum ConflictType {
-    DIRECT, NONPARAMETRIC;
+    DIRECT,MAXMIN, NONPARAMETRIC;
 
     private ConflictType(){
         // compiled code

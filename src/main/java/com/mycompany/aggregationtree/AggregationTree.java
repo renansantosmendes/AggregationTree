@@ -11,7 +11,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @author renansantos
@@ -20,16 +23,16 @@ public class AggregationTree {
 
     private List<List<Double>> listData;
     private List<List<Integer>> rankData;
+    private double[][] normalizedData;
     private List<List<Data>> dataObjectList;
     private double[][] data;
     private String fileName;
     private int numberOfReducedObjectives = 0;
-    private double[][] similarity;
     private double[][] dissimilarity;
     private List<List<Integer>> transformationList;
     private int numberOfRows;
     private int numberOfColumns;
-    private CorrelationType conflictType;
+    private ConflictType conflictType;
 
     private class Data {
 
@@ -56,13 +59,13 @@ public class AggregationTree {
         public void setRank(int rank) {
             this.rank = rank;
         }
-        
-        public String toString(){
-            return Double.toString(this.data)+":"+Integer.toString(this.rank);
+
+        public String toString() {
+            return Double.toString(this.data) + ":" + Integer.toString(this.rank);
         }
     }
 
-    public AggregationTree(double[][] data, int numberOfReducedObjectives, CorrelationType corr) {
+    public AggregationTree(double[][] data, int numberOfReducedObjectives, ConflictType corr) {
         this.data = data;
         this.numberOfReducedObjectives = numberOfReducedObjectives;
         this.numberOfRows = this.data.length;
@@ -102,14 +105,6 @@ public class AggregationTree {
         return data;
     }
 
-    public double[][] getSimilarity() {
-        return similarity;
-    }
-
-    public double[][] getDissimilarity() {
-        return similarity;
-    }
-
     public List<List<Integer>> getTransfomationList() {
         return transformationList;
     }
@@ -118,7 +113,7 @@ public class AggregationTree {
         this.transformationList.forEach(System.out::println);
     }
 
-    public AggregationTree setCorrelation(CorrelationType correlationType) {
+    public AggregationTree setCorrelation(ConflictType correlationType) {
         this.conflictType = correlationType;
         return this;
     }
@@ -177,6 +172,7 @@ public class AggregationTree {
 
     public void sortObjectDataForEveryObjective() {
         initializeRankData();
+        correctsObjectivesWithSameValue();
         for (int i = 0; i < this.numberOfColumns; i++) {
             sortObjectDataAccordingObjectiveNumber(i);
             int counter = 1;
@@ -185,21 +181,68 @@ public class AggregationTree {
                 counter++;
             }
         }
-        this.rankData.forEach(System.out::println);
+        //this.rankData.forEach(System.out::println);
+        generateNormalizedData();
     }
-    
+
+    public void correctsObjectivesWithSameValue() {
+
+        for (int i = 0; i < this.numberOfColumns; i++) {
+            Map<Double, Integer> map = new HashMap<>();
+            int counter = 0;
+            for (int j = 0; j < this.numberOfRows; j++) {
+                
+                double data = this.dataObjectList.get(j).get(i).getData();
+                System.out.print(data + " ");
+                if (!map.containsKey(data)) {
+                    map.put(data, counter);
+                }else{
+                    counter++;
+                    map.replace(data, counter);
+                }
+            }
+//            System.out.println(map.keySet());
+            
+            for(double key: map.keySet()){
+                if(map.get(key)!= 0){
+                    System.out.println("this column should be changed");
+                }
+            }
+            System.out.println("");
+        }
+    }
+
+    public void generateNormalizedData() {
+        this.normalizedData = new double[this.numberOfRows][this.numberOfColumns];
+        for (int i = 0; i < this.numberOfColumns; i++) {
+            for (int j = 0; j < this.numberOfRows; j++) {
+                this.normalizedData[j][i] = this.dataObjectList.get(j).get(i).getRank();
+            }
+        }
+    }
+
+    public void printNormalizedData() {
+//        this.normalizedData = new double[this.numberOfRows][this.numberOfColumns];
+        for (int i = 0; i < this.numberOfRows; i++) {
+            for (int j = 0; j < this.numberOfColumns; j++) {
+                System.out.print(this.normalizedData[i][j] + ",");
+            }
+            System.out.println();
+        }
+    }
+
     public void sortDataAccordingObjectiveNumber(int number) {
         this.listData.sort(Comparator.comparingDouble(d -> d.get(number)));
     }
-    
+
     public void sortObjectDataAccordingObjectiveNumber(int number) {
         this.dataObjectList.sort(Comparator.comparingDouble(d -> d.get(number).getData()));
     }
 
-    public void printDataObjects(){
+    public void printDataObjects() {
         this.dataObjectList.forEach(d -> System.out.println(d));
     }
-    
+
     private void initializeRankData() {
         this.rankData = new ArrayList<>();
         for (int i = 0; i < this.numberOfRows; i++) {
