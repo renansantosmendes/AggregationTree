@@ -28,11 +28,13 @@ public class AggregationTree {
     private double[][] data;
     private String fileName;
     private int numberOfReducedObjectives = 0;
-    private double[][] dissimilarity;
+    private double[][] conflictMatrix;
+    private double[][] harmonyMatrix;
     private List<List<Integer>> transformationList;
     private int numberOfRows;
     private int numberOfColumns;
     private ConflictType conflictType;
+    private double maxConflict;
 
     private class Data {
 
@@ -181,8 +183,7 @@ public class AggregationTree {
                 counter++;
             }
         }
-        //this.rankData.forEach(System.out::println);
-        generateNormalizedData();
+        normalizeData();
     }
 
     public void correctsObjectivesWithSameValue() {
@@ -191,28 +192,32 @@ public class AggregationTree {
             Map<Double, Integer> map = new HashMap<>();
             int counter = 0;
             for (int j = 0; j < this.numberOfRows; j++) {
-                
+
                 double data = this.dataObjectList.get(j).get(i).getData();
-                System.out.print(data + " ");
                 if (!map.containsKey(data)) {
                     map.put(data, counter);
-                }else{
+                } else {
                     counter++;
                     map.replace(data, counter);
                 }
             }
-//            System.out.println(map.keySet());
-            
-            for(double key: map.keySet()){
-                if(map.get(key)!= 0){
-                    System.out.println("this column should be changed");
+
+            for (double key : map.keySet()) {
+                int numberOfRepetitions = map.get(key);
+                if (numberOfRepetitions != 0) {
+                    int count = 1;
+                    for (int j = 0; j < this.numberOfRows; j++) {
+                        if (this.dataObjectList.get(j).get(i).getData() == key) {
+                            this.dataObjectList.get(j).get(i).setData(count);
+                            count++;
+                        }
+                    }
                 }
             }
-            System.out.println("");
         }
     }
 
-    public void generateNormalizedData() {
+    public void normalizeData() {
         this.normalizedData = new double[this.numberOfRows][this.numberOfColumns];
         for (int i = 0; i < this.numberOfColumns; i++) {
             for (int j = 0; j < this.numberOfRows; j++) {
@@ -228,6 +233,52 @@ public class AggregationTree {
                 System.out.print(this.normalizedData[i][j] + ",");
             }
             System.out.println();
+        }
+    }
+
+    public void reduce() {
+
+    }
+
+    public void calculateClonflictMatrix() {
+        this.conflictMatrix = new double[this.numberOfRows][this.numberOfColumns];
+        for (int i = 0; i < this.numberOfColumns; i++) {
+            for (int j = i + 1; j < this.numberOfColumns; j++) {
+                double sum = 0;
+                for (int k = 0; k < this.numberOfRows; k++) {
+                    sum += Math.abs(this.normalizedData[k][i] - this.normalizedData[k][j]);
+                }
+                this.conflictMatrix[i][j] = sum;
+            }
+        }
+        
+        normalizeConflictMatrix();
+    }
+
+    public void normalizeConflictMatrix() {
+        calculateMaxConflict();
+        for (int i = 0; i < this.numberOfRows; i++) {
+            for (int j = i + 1; j < this.numberOfColumns; j++) {
+                this.conflictMatrix[i][j] = this.conflictMatrix[i][j] /this.maxConflict;
+            }
+        }
+    }
+
+    private void calculateMaxConflict() {
+        double sum = 0;
+        int n = this.numberOfRows;
+        for (int i = 1; i <= n; i++) {
+            sum += Math.abs(2*i - n - 1);
+        }
+        this.maxConflict = sum;
+    }
+
+    public void printConflictMatrix() {
+        for (int i = 0; i < this.numberOfRows; i++) {
+            for (int j = 0; j < this.numberOfColumns; j++) {
+                System.out.print(this.conflictMatrix[i][j] + " ");
+            }
+            System.out.println("");
         }
     }
 
@@ -252,5 +303,16 @@ public class AggregationTree {
             }
             this.rankData.add(lineData);
         }
+    }
+
+    public void run() {
+        normalizeData();
+        while (hasObjectiveToReduce()) {
+
+        }
+    }
+
+    private boolean hasObjectiveToReduce() {
+        return true;
     }
 }

@@ -25,6 +25,9 @@ public class Main {
         at.sortObjectDataForEveryObjective();
         System.out.println("");
 //        at.printNormalizedData();
+        
+        at.calculateClonflictMatrix();
+        at.printConflictMatrix();
         //at.printDataObjects();
 
     }
