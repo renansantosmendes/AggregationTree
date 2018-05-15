@@ -36,6 +36,7 @@ public class AggregationTree {
     private int numberOfColumns;
     private ConflictType conflictType;
     private double maxConflict;
+    private List<List<Integer>> columns;
 
     private class Data {
 
@@ -120,6 +121,10 @@ public class AggregationTree {
         this.transformationList = list;
     }
 
+    public List<List<Integer>> getTransformationList() {
+        return transformationList;
+    }
+    
     private List<List<Double>> readData() throws FileNotFoundException, IOException {
         BufferedReader br = new BufferedReader(new FileReader(fileName));
         List<List<Double>> listData = new ArrayList<>();
@@ -245,9 +250,13 @@ public class AggregationTree {
                 .plus(m.getMatrix(0, m.getRowDimension() - 1, column2, column2)));
         reducedData.setMatrix(0, m.getRowDimension() - 1, column1 + 1, column2 - 1, m.getMatrix(0, m.getRowDimension() - 1, column1 + 1, column2 - 1));
         reducedData.setMatrix(0, m.getRowDimension() - 1, column2, m.getColumnDimension() - 2, m.getMatrix(0, m.getRowDimension() - 1, column2 + 1, m.getColumnDimension() - 1));
-        
+
         this.numberOfColumns--;
-        System.out.println("indexes = " + indexes);
+
+        columns.get(indexes.get(0)).addAll(columns.get(indexes.get(1)));
+        columns.get(indexes.get(1)).clear();
+        int index = indexes.get(1);
+        columns.remove(index);
     }
 
     public void calculateClonflictMatrix() {
@@ -285,7 +294,6 @@ public class AggregationTree {
         if (column == 0 && row == 0) {
             throw new RuntimeException("could not find the minimum conflict value ");
         }
-
         positions.add(row);
         positions.add(column);
         positions.sort(Comparator.naturalOrder());
@@ -341,8 +349,9 @@ public class AggregationTree {
             this.rankData.add(lineData);
         }
     }
-    
-     private void initializeColumnsForCluster(List<List<Integer>> columns) {
+
+    private void initializeColumnsForAggregationTree() {
+        columns = new ArrayList<>();
         for (int i = 0; i < this.numberOfColumns; i++) {
             List<Integer> column = new ArrayList<>();
             column.add(i);
@@ -350,37 +359,40 @@ public class AggregationTree {
         }
     }
 
-    private List<List<Integer>> generateClusterMatrix(List<List<Integer>> columns) {
-        List<List<Integer>> list = new ArrayList<>();
+    private void generateTranformationMatrix() {
+        transformationList = new ArrayList<>();
         for (int i = 0; i < this.numberOfReducedObjectives; i++) {
             List<Integer> column = new ArrayList<>();
-            for (int j = 0; j < this.numberOfColumns; j++) {
+            for (int j = 0; j < listData.get(0).size(); j++) {
                 column.add(0);
             }
-            list.add(column);
+            transformationList.add(column);
         }
 
         for (int i = 0; i < this.numberOfReducedObjectives; i++) {
             for (int j = 0; j < columns.get(i).size(); j++) {
-                list.get(i).set(columns.get(i).get(j), 1);
+                transformationList.get(i).set(columns.get(i).get(j), 1);
             }
         }
-        return list;
     }
 
     public void run() {
         sortObjectDataForEveryObjective();
         calculateClonflictMatrix();
+        initializeColumnsForAggregationTree();
         while (hasObjectiveToReduce()) {
-            System.out.println("");
-            printConflictMatrix();
             reduce();
             sortObjectDataForEveryObjective();
             calculateClonflictMatrix();
         }
+        generateTranformationMatrix();
     }
 
     private boolean hasObjectiveToReduce() {
         return this.numberOfColumns > this.numberOfReducedObjectives;
+    }
+
+    private void printTransformationMatrix() {
+        this.transformationList.forEach(System.out::println);
     }
 }
