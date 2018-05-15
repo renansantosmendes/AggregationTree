@@ -245,6 +245,9 @@ public class AggregationTree {
                 .plus(m.getMatrix(0, m.getRowDimension() - 1, column2, column2)));
         reducedData.setMatrix(0, m.getRowDimension() - 1, column1 + 1, column2 - 1, m.getMatrix(0, m.getRowDimension() - 1, column1 + 1, column2 - 1));
         reducedData.setMatrix(0, m.getRowDimension() - 1, column2, m.getColumnDimension() - 2, m.getMatrix(0, m.getRowDimension() - 1, column2 + 1, m.getColumnDimension() - 1));
+        
+        this.numberOfColumns--;
+        System.out.println("indexes = " + indexes);
     }
 
     public void calculateClonflictMatrix() {
@@ -338,11 +341,39 @@ public class AggregationTree {
             this.rankData.add(lineData);
         }
     }
+    
+     private void initializeColumnsForCluster(List<List<Integer>> columns) {
+        for (int i = 0; i < this.numberOfColumns; i++) {
+            List<Integer> column = new ArrayList<>();
+            column.add(i);
+            columns.add(column);
+        }
+    }
+
+    private List<List<Integer>> generateClusterMatrix(List<List<Integer>> columns) {
+        List<List<Integer>> list = new ArrayList<>();
+        for (int i = 0; i < this.numberOfReducedObjectives; i++) {
+            List<Integer> column = new ArrayList<>();
+            for (int j = 0; j < this.numberOfColumns; j++) {
+                column.add(0);
+            }
+            list.add(column);
+        }
+
+        for (int i = 0; i < this.numberOfReducedObjectives; i++) {
+            for (int j = 0; j < columns.get(i).size(); j++) {
+                list.get(i).set(columns.get(i).get(j), 1);
+            }
+        }
+        return list;
+    }
 
     public void run() {
         sortObjectDataForEveryObjective();
         calculateClonflictMatrix();
         while (hasObjectiveToReduce()) {
+            System.out.println("");
+            printConflictMatrix();
             reduce();
             sortObjectDataForEveryObjective();
             calculateClonflictMatrix();
@@ -350,6 +381,6 @@ public class AggregationTree {
     }
 
     private boolean hasObjectiveToReduce() {
-        return true;
+        return this.numberOfColumns > this.numberOfReducedObjectives;
     }
 }

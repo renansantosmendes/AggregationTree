@@ -18,7 +18,7 @@ public class Main {
         String fileName = "ex.csv";
 
         AggregationTree at;
-        at = new AggregationTree(path + fileName, 2);
+        at = new AggregationTree(path + fileName, 1);
         at.run();
 
     }
