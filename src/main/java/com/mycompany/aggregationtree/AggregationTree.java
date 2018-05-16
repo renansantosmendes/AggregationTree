@@ -299,7 +299,7 @@ public class AggregationTree {
         int row = 0;
         for (int i = 0; i < this.numberOfColumns; i++) {
             for (int j = i + 1; j < this.numberOfColumns; j++) {
-                if (this.conflictMatrix[i][j] < minConflict && this.conflictMatrix[i][j] != 0) {
+                if (this.conflictMatrix[i][j] < minConflict /*&& this.conflictMatrix[i][j] != 0*/) {
                     minConflict = this.conflictMatrix[i][j];
                     row = i;
                     column = j;
@@ -395,11 +395,13 @@ public class AggregationTree {
     public void run() {
         sortObjectDataForEveryObjective();
         calculateClonflictMatrix();
+        this.printConflictMatrix();
         initializeColumnsForAggregationTree();
         while (hasObjectiveToReduce()) {
             reduce();
             sortObjectDataForEveryObjective();
             calculateClonflictMatrix();
+            //this.printConflictMatrix();
         }
         generateTranformationMatrix();
     }

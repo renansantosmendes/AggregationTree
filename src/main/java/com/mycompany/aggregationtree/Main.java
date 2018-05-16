@@ -14,13 +14,15 @@ public class Main {
     public static void main(String[] args) {
 
         String path = "/home/renansantos/Área de Trabalho/Aggregation Tree/";
-        String fileName = "OffCLMOEAD_R3_CombinedPareto_Objectives.csv";
-//        String fileName = "ex.csv";
+//        String fileName = "OffCLMOEAD_R3_CombinedPareto_Objectives.csv";
+        String fileName = "ex3.csv";
 
         AggregationTree at;
-        at = new AggregationTree(path + fileName, 2);
+        at = new AggregationTree(path + fileName, 10);
         at.run();
         at.printTransformationList();
+        
+        at.printNormalizedData();
 
     }
 }
