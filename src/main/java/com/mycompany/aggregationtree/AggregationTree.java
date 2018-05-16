@@ -190,6 +190,7 @@ public class AggregationTree {
 
     public void sortObjectDataForEveryObjective() {
         initializeRankData();
+        //here shold be changed, the rank data is lost
         correctsObjectivesWithSameValue();
         for (int i = 0; i < this.numberOfColumns; i++) {
             sortObjectDataAccordingObjectiveNumber(i);
@@ -273,6 +274,8 @@ public class AggregationTree {
         columns.get(indexes.get(1)).clear();
         int index = indexes.get(1);
         columns.remove(index);
+        
+        this.normalizedData = reducedData.getArrayCopy();
     }
 
     public void calculateClonflictMatrix() {
@@ -401,7 +404,8 @@ public class AggregationTree {
             reduce();
             sortObjectDataForEveryObjective();
             calculateClonflictMatrix();
-            //this.printConflictMatrix();
+            System.out.println("");
+            this.printConflictMatrix();
         }
         generateTranformationMatrix();
     }

@@ -22,7 +22,7 @@ public class Main {
         at.run();
         at.printTransformationList();
         
-        at.printNormalizedData();
+        //at.printNormalizedData();
 
     }
 }
