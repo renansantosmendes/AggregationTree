@@ -18,7 +18,7 @@ public class Main {
         String fileName = "ex3.csv";
 
         AggregationTree at;
-        at = new AggregationTree(path + fileName, 10);
+        at = new AggregationTree(path + fileName, 2);
         at.run();
         at.printTransformationList();
         
